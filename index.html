@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>建模大師 OS · Modeling Master System</title>
+<style>
+:root {
+  --navy: #1a2e5a;
+  --navy2: #243770;
+  --teal: #0d7a8a;
+  --teal2: #16a0b5;
+  --gold: #c9960c;
+  --gold2: #e8b430;
+  --red: #c0392b;
+  --green: #1a7a4a;
+  --purple: #6b2d8b;
+  --bg: #ffffff;
+  --bg2: #f5f7fb;
+  --bg3: #edf0f7;
+  --text: #1a1a2e;
+  --text2: #454560;
+  --text3: #7a7a9a;
+  --border: #dce1eb;
+  --shadow: 0 2px 14px rgba(26,46,90,.09);
+  --shadow-lg: 0 6px 28px rgba(26,46,90,.14);
+  --r: 14px;
+  --r-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;
+  background: var(--bg2);
+  color: var(--text);
+  font-size: 17px;
+  line-height: 1.68;
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.hdr {
+  background: linear-gradient(135deg, #0f1f47 0%, #1a3468 50%, #0d6a78 100%);
+  color: #fff; padding: 20px 20px 18px;
+  position: sticky; top: 0; z-index: 120;
+  box-shadow: 0 3px 18px rgba(0,0,0,.22);
+}
+.hdr-inner { max-width: 980px; margin: 0 auto; display: flex; align-items: center; gap: 14px; justify-content: space-between; }
+.hdr-left { display: flex; align-items: center; gap: 14px; }
+.hdr-icon { font-size: 2.3rem; filter: drop-shadow(0 2px 5px rgba(0,0,0,.3)); }
+.hdr-title { font-size: 1.4rem; font-weight: 900; line-height: 1.15; letter-spacing: .02em; }
+.hdr-sub { font-size: .8rem; opacity: .7; letter-spacing: .06em; margin-top: 2px; }
+.hdr-badge { background: var(--gold); color: #fff; font-size: .75rem; font-weight: 800; padding: 5px 14px; border-radius: 20px; white-space: nowrap; letter-spacing: .04em; }
+
+/* ── NAV ── */
+.nav-wrap {
+  background: #fff;
+  border-bottom: 2px solid var(--border);
+  position: sticky; top: 72px; z-index: 100;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.nav-wrap::-webkit-scrollbar { height: 3px; }
+.nav-wrap::-webkit-scrollbar-thumb { background: var(--teal2); border-radius: 2px; }
+.nav-inner { max-width: 980px; margin: 0 auto; display: flex; padding: 0 6px; }
+.nav-btn {
+  background: none; border: none; cursor: pointer;
+  padding: 13px 16px 11px; font-size: .9rem; font-weight: 700;
+  color: var(--text3); border-bottom: 3px solid transparent;
+  white-space: nowrap; font-family: inherit;
+  display: flex; align-items: center; gap: 5px;
+  transition: color .15s;
+}
+.nav-btn:hover { color: var(--teal); }
+.nav-btn.active { color: var(--navy); border-bottom-color: var(--gold); }
+
+/* ── MAIN ── */
+.main { max-width: 980px; margin: 0 auto; padding: 26px 14px 70px; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── SECTION HEAD ── */
+.sec-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.sec-icon { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, var(--navy), var(--teal)); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+.sec-title { font-size: 1.2rem; font-weight: 900; color: var(--navy); line-height: 1.2; }
+.sec-sub { font-size: .8rem; color: var(--text3); letter-spacing: .04em; margin-top: 2px; }
+
+/* ── CARD BASE ── */
+.card { background: #fff; border-radius: var(--r); box-shadow: var(--shadow); border: 1px solid var(--border); }
+
+/* ── DOMAIN GRID ── */
+.domain-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+@media(max-width:700px){ .domain-grid { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:420px){ .domain-grid { grid-template-columns: 1fr; } }
+.domain-card {
+  background: #fff; border-radius: var(--r);
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+  padding: 18px 16px; cursor: pointer;
+  transition: transform .14s, box-shadow .14s;
+  border-top: 4px solid var(--teal);
+  position: relative; overflow: hidden;
+}
+.domain-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.domain-card::after { content:''; position:absolute; right:-16px; bottom:-16px; width:60px; height:60px; border-radius:50%; background:rgba(13,122,138,.05); }
+.domain-emoji { font-size: 1.8rem; margin-bottom: 8px; }
+.domain-zh { font-size: 1rem; font-weight: 800; color: var(--navy); }
+.domain-en { font-size: .72rem; color: var(--text3); letter-spacing: .04em; margin-top: 2px; }
+.domain-key { font-size: .78rem; color: var(--teal); font-weight: 700; margin-top: 7px; }
+
+/* ── COMPARE TABLE ── */
+.compare-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow); font-size: .88rem; margin-bottom: 24px; }
+.compare-table th { padding: 12px 14px; font-weight: 800; font-size: .8rem; letter-spacing: .04em; text-align: left; }
+.compare-table th:nth-child(1) { background: var(--bg3); color: var(--text2); width: 22%; }
+.compare-table th:nth-child(2) { background: #fef2f2; color: var(--red); width: 26%; }
+.compare-table th:nth-child(3) { background: #f0faf5; color: var(--green); width: 26%; }
+.compare-table th:nth-child(4) { background: #f0f5ff; color: var(--navy); width: 26%; }
+.compare-table td { padding: 10px 14px; border-top: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+.compare-table td:nth-child(1) { font-weight: 700; color: var(--navy); background: var(--bg3); font-size: .82rem; }
+.compare-table td:nth-child(2) { color: var(--text2); }
+.compare-table td:nth-child(3) { color: var(--green); font-weight: 600; }
+.compare-table td:nth-child(4) { color: var(--navy); font-size: .78rem; font-style: italic; }
+
+/* ── EXPAND CARDS ── */
+.expand-card { background: #fff; border-radius: var(--r); box-shadow: var(--shadow); border: 1px solid var(--border); overflow: hidden; margin-bottom: 12px; }
+.expand-head { display: flex; align-items: center; gap: 12px; padding: 15px 18px; cursor: pointer; background: var(--bg2); user-select: none; }
+.expand-num { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 900; color: #fff; flex-shrink: 0; }
+.expand-titles { flex: 1; }
+.expand-zh { font-size: 1.05rem; font-weight: 800; color: var(--navy); }
+.expand-en { font-size: .73rem; color: var(--text3); margin-top: 1px; }
+.expand-core { font-size: .8rem; color: var(--text2); margin-top: 2px; }
+.expand-arrow { color: var(--text3); transition: transform .18s; font-size: 1rem; }
+.expand-card.open .expand-arrow { transform: rotate(90deg); }
+.expand-body { display: none; border-top: 1px solid var(--border); }
+.expand-card.open .expand-body { display: block; }
+
+/* ── MODEL 6 GRID ── */
+.model-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 14px 16px; }
+@media(max-width:600px){ .model-grid { grid-template-columns: 1fr 1fr; } }
+.model-item { background: var(--bg2); border-radius: var(--r-sm); padding: 12px; border-left: 3px solid var(--teal); }
+.model-zh { font-size: .93rem; font-weight: 800; color: var(--navy); }
+.model-en { font-size: .71rem; color: var(--text3); margin-top: 1px; letter-spacing: .03em; }
+.model-q { font-size: .78rem; color: var(--text2); margin-top: 5px; }
+.model-lever { font-size: .75rem; font-weight: 700; color: var(--teal); margin-top: 3px; }
+
+/* ── LEVER 6 ── */
+.lever-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px; }
+@media(max-width:500px){ .lever-grid { grid-template-columns: 1fr; } }
+.lever-item { display: flex; align-items: flex-start; gap: 10px; background: var(--bg2); border-radius: var(--r-sm); padding: 10px 12px; }
+.lever-num2 { width: 26px; height: 26px; border-radius: 50%; background: var(--gold); color: #fff; font-size: .8rem; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.lever-content {}
+.lever-zh2 { font-size: .9rem; font-weight: 700; color: var(--navy); }
+.lever-en2 { font-size: .71rem; color: var(--text3); }
+.lever-how { font-size: .78rem; color: var(--text2); margin-top: 3px; }
+
+/* ── CHAIN DISPLAY ── */
+.chain-box { padding: 14px 18px; background: linear-gradient(90deg, var(--bg2), #fff); }
+.chain-title { font-size: .75rem; font-weight: 800; color: var(--text3); letter-spacing: .07em; margin-bottom: 10px; }
+.chain-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.chain-item { background: #fff; border: 1.5px solid var(--border); border-radius: 8px; padding: 4px 12px; font-size: .84rem; font-weight: 700; color: var(--navy); }
+.chain-arrow { color: var(--teal); font-size: .9rem; font-weight: 700; }
+
+/* ── COMPARE PAIR ── */
+.compare-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px 4px; }
+.cp-bad { background: #fef3f2; border: 1px solid #fcc; border-radius: var(--r-sm); padding: 10px 12px; }
+.cp-good { background: #f0faf5; border: 1px solid #a8dcc0; border-radius: var(--r-sm); padding: 10px 12px; }
+.cp-label { font-size: .7rem; font-weight: 800; letter-spacing: .07em; margin-bottom: 5px; }
+.cp-bad .cp-label { color: var(--red); }
+.cp-good .cp-label { color: var(--green); }
+.cp-text { font-size: .85rem; color: var(--text); line-height: 1.55; }
+.cp-en { font-size: .71rem; color: var(--text3); margin-top: 3px; }
+
+/* ── AI PROMPT BOX ── */
+.ai-box { margin: 0 16px 14px; }
+.ai-box-title { font-size: .72rem; font-weight: 800; color: var(--purple); letter-spacing: .08em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.ai-prompts { display: flex; flex-direction: column; gap: 7px; }
+.ai-prompt { background: #f8f4ff; border: 1px solid #d0b8f0; border-radius: var(--r-sm); padding: 9px 12px; }
+.ai-prompt-zh { font-size: .88rem; font-weight: 700; color: var(--purple); }
+.ai-prompt-text { font-size: .8rem; color: var(--text2); margin-top: 3px; line-height: 1.5; }
+.ai-prompt-en { font-size: .7rem; color: var(--text3); margin-top: 2px; }
+
+/* ── RESULT BOX ── */
+.result-box { margin: 0 16px 14px; padding: 10px 14px; border-radius: var(--r-sm); border-left: 4px solid var(--teal); background: linear-gradient(90deg, rgba(13,122,138,.06), rgba(13,122,138,.01)); }
+.result-label { font-size: .7rem; font-weight: 800; color: var(--teal); letter-spacing: .07em; }
+.result-zh { font-size: .92rem; font-weight: 700; color: var(--navy); margin-top: 2px; }
+.result-en { font-size: .73rem; color: var(--text3); margin-top: 2px; }
+
+/* ── FORMULA BOX ── */
+.formula-box {
+  background: linear-gradient(135deg, #0f1f47, #1a3468 55%, #0d6a78 100%);
+  border-radius: var(--r); padding: 26px 22px;
+  color: #fff; text-align: center; margin-bottom: 22px;
+  box-shadow: var(--shadow-lg);
+}
+.formula-title { font-size: 1rem; font-weight: 800; opacity: .8; letter-spacing: .07em; margin-bottom: 14px; }
+.formula-chips { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; margin-bottom: 12px; }
+.formula-chip { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: 4px 13px; font-size: .86rem; font-weight: 700; }
+.formula-plus { opacity: .4; font-size: 1.1rem; }
+.formula-down { font-size: 1.5rem; opacity: .4; width: 100%; text-align: center; margin: 6px 0; }
+.formula-result { font-size: 1.35rem; font-weight: 900; color: var(--gold2); }
+.formula-result-en { font-size: .78rem; opacity: .6; margin-top: 4px; }
+
+/* ── QUOTE BOX ── */
+.quote-box { border-left: 5px solid var(--gold); background: #fffbf0; padding: 14px 18px; border-radius: 0 var(--r) var(--r) 0; margin: 14px 0; }
+.quote-zh { font-size: 1rem; font-weight: 800; color: var(--navy); line-height: 1.55; }
+.quote-en { font-size: .78rem; color: var(--text3); margin-top: 5px; font-style: italic; }
+
+/* ── PRINCIPLE CARDS ── */
+.principle-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 22px; }
+@media(max-width:600px){ .principle-grid { grid-template-columns: 1fr; } }
+.principle-card { background: #fff; border-radius: var(--r); box-shadow: var(--shadow); padding: 18px 16px; border-top: 4px solid var(--gold); text-align: center; }
+.principle-emoji { font-size: 1.9rem; margin-bottom: 8px; }
+.principle-zh { font-size: .98rem; font-weight: 900; color: var(--navy); }
+.principle-en { font-size: .71rem; color: var(--text3); letter-spacing: .04em; margin-top: 2px; }
+.principle-text { font-size: .82rem; color: var(--text2); margin-top: 9px; line-height: 1.55; }
+
+/* ── LEVEL LADDER ── */
+.level-ladder { background: #fff; border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 22px; }
+.level-row { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+.level-row:last-child { border-bottom: none; }
+.level-badge { font-size: .75rem; font-weight: 900; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+.level-content {}
+.level-zh { font-size: .95rem; font-weight: 700; color: var(--navy); }
+.level-en { font-size: .72rem; color: var(--text3); }
+.level-detail { font-size: .8rem; color: var(--text2); margin-top: 3px; }
+
+/* ── APPLICATION CARDS ── */
+.app-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding: 14px 16px; }
+@media(max-width:600px){ .app-grid { grid-template-columns: 1fr; } }
+.app-item { border-radius: var(--r-sm); padding: 12px; border: 1px solid var(--border); background: var(--bg2); }
+.app-emoji { font-size: 1.4rem; margin-bottom: 6px; }
+.app-zh { font-size: .9rem; font-weight: 800; color: var(--navy); }
+.app-en { font-size: .7rem; color: var(--text3); }
+.app-bad { font-size: .8rem; color: var(--red); margin-top: 6px; }
+.app-good { font-size: .8rem; color: var(--green); font-weight: 600; margin-top: 3px; }
+
+/* ── MEGA PROMPT ── */
+.mega-prompt { background: linear-gradient(135deg, #2d0a4e, #4a1878, #1a2e5a); border-radius: var(--r); padding: 22px 20px; color: #fff; margin-bottom: 22px; }
+.mega-title { font-size: 1rem; font-weight: 900; color: var(--gold2); margin-bottom: 12px; }
+.mega-intro { font-size: .85rem; opacity: .85; margin-bottom: 14px; line-height: 1.6; }
+.mega-list { display: flex; flex-direction: column; gap: 6px; }
+.mega-item { display: flex; gap: 10px; align-items: flex-start; }
+.mega-no { font-size: .75rem; font-weight: 900; color: var(--gold2); min-width: 24px; padding-top: 1px; }
+.mega-text { font-size: .84rem; opacity: .9; line-height: 1.5; }
+.mega-en { font-size: .7rem; opacity: .6; margin-top: 1px; }
+
+/* ── FOOTER ── */
+.page-footer { text-align: center; margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--text3); font-size: .76rem; }
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-left">
+      <div class="hdr-icon">🧠</div>
+      <div>
+        <div class="hdr-title">建模大師 OS</div>
+        <div class="hdr-sub">Modeling Master Operating System · 普通人 vs 建模大師</div>
+      </div>
+    </div>
+    <div class="hdr-badge">15 大領域</div>
+  </div>
+</header>
+
+<nav class="nav-wrap">
+  <div class="nav-inner">
+    <button class="nav-btn active" onclick="showPage('overview')" data-page="overview">🗺️ 總覽</button>
+    <button class="nav-btn" onclick="showPage('core')" data-page="core">🧠 建模核心</button>
+    <button class="nav-btn" onclick="showPage('life')" data-page="life">🌱 人生系統</button>
+    <button class="nav-btn" onclick="showPage('habit')" data-page="habit">⚡ 習慣注意力</button>
+    <button class="nav-btn" onclick="showPage('relation')" data-page="relation">🤝 關係溝通</button>
+    <button class="nav-btn" onclick="showPage('health')" data-page="health">💊 健康睡眠</button>
+    <button class="nav-btn" onclick="showPage('leadership')" data-page="leadership">👑 領導決策</button>
+    <button class="nav-btn" onclick="showPage('wealth')" data-page="wealth">💰 財富時間</button>
+    <button class="nav-btn" onclick="showPage('prompt')" data-page="prompt">🤖 AI提示詞</button>
+  </div>
+</nav>
+
+<div class="main">
+
+<!-- ══════════ PAGE: OVERVIEW ══════════ -->
+<div class="page active" id="page-overview">
+
+  <div class="sec-head">
+    <div class="sec-icon">🗺️</div>
+    <div>
+      <div class="sec-title">建模大師系統總覽</div>
+      <div class="sec-sub">Complete Overview · 15 Life Domains · Systems Thinking Approach</div>
+    </div>
+  </div>
+
+  <div class="formula-box">
+    <div class="formula-title">🧠 建模大師最高維公式</div>
+    <div class="formula-chips">
+      <div class="formula-chip">建模能力</div><div class="formula-plus">+</div>
+      <div class="formula-chip">預測能力</div><div class="formula-plus">+</div>
+      <div class="formula-chip">決策能力</div><div class="formula-plus">+</div>
+      <div class="formula-chip">修正能力</div><div class="formula-plus">+</div>
+      <div class="formula-chip">更新能力</div>
+    </div>
+    <div class="formula-down">↓</div>
+    <div class="formula-result">人生作業系統升級</div>
+    <div class="formula-result-en">Modeling · Prediction · Decision · Correction · Update = Life OS Upgrade</div>
+  </div>
+
+  <div class="principle-grid">
+    <div class="principle-card">
+      <div class="principle-emoji">📋</div>
+      <div class="principle-zh">普通人管理事件</div>
+      <div class="principle-en">Manages Events</div>
+      <div class="principle-text">事件來了才處理，永遠忙不完<br><small>Reactive: events drive behavior</small></div>
+    </div>
+    <div class="principle-card">
+      <div class="principle-emoji">⚙️</div>
+      <div class="principle-zh">高手管理系統</div>
+      <div class="principle-en">Manages Systems</div>
+      <div class="principle-text">建好系統，事情自然減少<br><small>Proactive: systems reduce events</small></div>
+    </div>
+    <div class="principle-card" style="border-top-color:var(--teal)">
+      <div class="principle-emoji">🧩</div>
+      <div class="principle-zh">建模大師管理模型</div>
+      <div class="principle-en">Manages Models</div>
+      <div class="principle-text">模型更新了，系統自動升級<br><small>Meta-level: models generate systems</small></div>
+    </div>
+  </div>
+
+  <!-- 20 domain overview grid -->
+  <div class="sec-head">
+    <div class="sec-icon">📊</div>
+    <div>
+      <div class="sec-title">15大領域建模系統</div>
+      <div class="sec-sub">15 Life Domains · Click tabs above to explore each</div>
+    </div>
+  </div>
+
+  <div class="domain-grid">
+    <div class="domain-card" onclick="showPage('core')" style="border-top-color:var(--purple)">
+      <div class="domain-emoji">🧠</div>
+      <div class="domain-zh">認知建模</div>
+      <div class="domain-en">Cognitive Modeling</div>
+      <div class="domain-key">覺察→建模→預測→更新</div>
+    </div>
+    <div class="domain-card" onclick="showPage('core')" style="border-top-color:var(--navy)">
+      <div class="domain-emoji">🔮</div>
+      <div class="domain-zh">預測編碼</div>
+      <div class="domain-en">Predictive Coding</div>
+      <div class="domain-key">大腦是預測機器</div>
+    </div>
+    <div class="domain-card" onclick="showPage('core')" style="border-top-color:var(--teal)">
+      <div class="domain-emoji">💭</div>
+      <div class="domain-zh">情緒管理</div>
+      <div class="domain-en">Emotion Management</div>
+      <div class="domain-key">情緒是系統訊號</div>
+    </div>
+    <div class="domain-card" onclick="showPage('life')">
+      <div class="domain-emoji">🌱</div>
+      <div class="domain-zh">人生管理</div>
+      <div class="domain-en">Life Management</div>
+      <div class="domain-key">人生是模型的總和</div>
+    </div>
+    <div class="domain-card" onclick="showPage('habit')" style="border-top-color:var(--gold)">
+      <div class="domain-emoji">⚡</div>
+      <div class="domain-zh">習慣管理</div>
+      <div class="domain-en">Habit Management</div>
+      <div class="domain-key">環境設計 &gt; 意志力</div>
+    </div>
+    <div class="domain-card" onclick="showPage('habit')" style="border-top-color:var(--red)">
+      <div class="domain-emoji">🎯</div>
+      <div class="domain-zh">注意力管理</div>
+      <div class="domain-en">Attention Management</div>
+      <div class="domain-key">注意力決定人生方向</div>
+    </div>
+    <div class="domain-card" onclick="showPage('relation')" style="border-top-color:var(--green)">
+      <div class="domain-emoji">🤝</div>
+      <div class="domain-zh">關係管理</div>
+      <div class="domain-en">Relationship Management</div>
+      <div class="domain-key">關係是預測系統</div>
+    </div>
+    <div class="domain-card" onclick="showPage('relation')" style="border-top-color:var(--teal)">
+      <div class="domain-emoji">💬</div>
+      <div class="domain-zh">溝通說話</div>
+      <div class="domain-en">Communication</div>
+      <div class="domain-key">輸出模型，不只輸出資訊</div>
+    </div>
+    <div class="domain-card" onclick="showPage('health')" style="border-top-color:var(--red)">
+      <div class="domain-emoji">💊</div>
+      <div class="domain-zh">健康管理</div>
+      <div class="domain-en">Health Management</div>
+      <div class="domain-key">優化系統，不只治症狀</div>
+    </div>
+    <div class="domain-card" onclick="showPage('health')" style="border-top-color:var(--navy)">
+      <div class="domain-emoji">😴</div>
+      <div class="domain-zh">睡眠管理</div>
+      <div class="domain-en">Sleep Management</div>
+      <div class="domain-key">睡眠是修復工程</div>
+    </div>
+    <div class="domain-card" onclick="showPage('health')" style="border-top-color:var(--purple)">
+      <div class="domain-emoji">🧘</div>
+      <div class="domain-zh">壓力管理</div>
+      <div class="domain-en">Stress Management</div>
+      <div class="domain-key">壓力是升級通知</div>
+    </div>
+    <div class="domain-card" onclick="showPage('leadership')" style="border-top-color:var(--gold)">
+      <div class="domain-emoji">👑</div>
+      <div class="domain-zh">領導管理</div>
+      <div class="domain-en">Leadership</div>
+      <div class="domain-key">建文化，不靠命令</div>
+    </div>
+    <div class="domain-card" onclick="showPage('leadership')" style="border-top-color:var(--navy)">
+      <div class="domain-emoji">⚖️</div>
+      <div class="domain-zh">決策管理</div>
+      <div class="domain-en">Decision Making</div>
+      <div class="domain-key">人生品質 = 決策品質</div>
+    </div>
+    <div class="domain-card" onclick="showPage('wealth')" style="border-top-color:var(--green)">
+      <div class="domain-emoji">💰</div>
+      <div class="domain-zh">財富管理</div>
+      <div class="domain-en">Wealth Management</div>
+      <div class="domain-key">建系統，不追錢</div>
+    </div>
+    <div class="domain-card" onclick="showPage('wealth')" style="border-top-color:var(--teal)">
+      <div class="domain-emoji">⏰</div>
+      <div class="domain-zh">時間空間管理</div>
+      <div class="domain-en">Time & Space</div>
+      <div class="domain-key">管理注意力，不只管時間</div>
+    </div>
+  </div>
+
+  <!-- 6 system layers -->
+  <div class="sec-head" style="margin-top:28px">
+    <div class="sec-icon">📐</div>
+    <div>
+      <div class="sec-title">人生六層系統架構</div>
+      <div class="sec-sub">Six-Layer Life System Architecture</div>
+    </div>
+  </div>
+  <div class="level-ladder">
+    <div class="level-row">
+      <div class="level-badge" style="background:#fef2f2;color:var(--red)">第一層</div>
+      <div class="level-content">
+        <div class="level-zh">🔴 生存系統 Survival System</div>
+        <div class="level-detail">健康管理 / 睡眠管理 / 壓力管理 / 能量管理 → 活得久、修復快、抗壓強<br><small>Health / Sleep / Stress / Energy → Longevity, Recovery, Resilience</small></div>
+      </div>
+    </div>
+    <div class="level-row">
+      <div class="level-badge" style="background:#fff7e0;color:var(--gold)">第二層</div>
+      <div class="level-content">
+        <div class="level-zh">🟡 學習系統 Learning System</div>
+        <div class="level-detail">學習管理 / 認知管理 / 預測管理 / 決策管理 → 知識→理解→智慧→成果<br><small>Learning / Cognition / Prediction / Decision → Knowledge → Wisdom → Results</small></div>
+      </div>
+    </div>
+    <div class="level-row">
+      <div class="level-badge" style="background:#f0f9ff;color:var(--teal)">第三層</div>
+      <div class="level-content">
+        <div class="level-zh">🔵 生產系統 Production System</div>
+        <div class="level-detail">時間管理 / 注意力管理 / 習慣管理 / 空間管理 → 效率、專注、複利、環境<br><small>Time / Attention / Habits / Space → Efficiency, Focus, Compound Growth</small></div>
+      </div>
+    </div>
+    <div class="level-row">
+      <div class="level-badge" style="background:#f0faf5;color:var(--green)">第四層</div>
+      <div class="level-content">
+        <div class="level-zh">🟢 財富系統 Wealth System</div>
+        <div class="level-detail">能力管理 / 金錢管理 / 資產管理 / 商業管理 → 價值、現金流、複利、系統化<br><small>Skills / Money / Assets / Business → Value, Cash Flow, Compound, Systems</small></div>
+      </div>
+    </div>
+    <div class="level-row">
+      <div class="level-badge" style="background:#f5f0ff;color:var(--purple)">第五層</div>
+      <div class="level-content">
+        <div class="level-zh">🟣 關係系統 Relationship System</div>
+        <div class="level-detail">情緒管理 / 溝通管理 / 關係管理 / 領導管理 → 穩定、理解、信任、影響力<br><small>Emotion / Communication / Relations / Leadership → Trust, Influence</small></div>
+      </div>
+    </div>
+    <div class="level-row">
+      <div class="level-badge" style="background:#eef1fa;color:var(--navy)">第六層</div>
+      <div class="level-content">
+        <div class="level-zh">🔷 人生系統 Life System</div>
+        <div class="level-detail">價值觀 / 目標管理 / 身份管理 / 人生整合 → 方向、聚焦、穩定、整合<br><small>Values / Goals / Identity / Life Integration → Direction, Focus, Integration</small></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quote-box">
+    <div class="quote-zh">建模大師最值得學的能力不是知識，而是：建模力 + 預測力 + 修正力 + 更新力。這四項能力幾乎可以遷移到健康、財富、學習、關係、教育、管理等所有領域。</div>
+    <div class="quote-en">The most valuable skills aren't knowledge, but: Modeling + Prediction + Correction + Update. These four transfer to every domain of life.</div>
+  </div>
+
+</div>
+
+<!-- ══════════ PAGE: CORE ══════════ -->
+<div class="page" id="page-core">
+
+  <div class="sec-head">
+    <div class="sec-icon">🧠</div>
+    <div>
+      <div class="sec-title">認知建模 · 預測編碼 · 情緒管理</div>
+      <div class="sec-sub">Cognitive Modeling · Predictive Coding · Emotion Intelligence</div>
+    </div>
+  </div>
+
+  <!-- COGNITIVE -->
+  <div class="expand-card" id="ec1">
+    <div class="expand-head" onclick="toggle('ec1')">
+      <div class="expand-num" style="background:var(--purple)">🧠</div>
+      <div class="expand-titles">
+        <div class="expand-zh">認知管理 Cognitive Management</div>
+        <div class="expand-en">Upgrade your mental models, not just accumulate knowledge</div>
+        <div class="expand-core">核心：知識會過時，模型可以遷移 · Models transfer; knowledge expires</div>
+      </div>
+      <div class="expand-arrow">▶</div>
+    </div>
+    <div class="expand-body">
+      <div class="compare-pair">
+        <div class="cp-bad"><div class="cp-label">❌ 普通人</div><div class="cp-text">事件 → 情緒反應<br>累積知識<br>看表面<br>固守舊觀念</div><div class="cp-en">Reactive · Accumulate facts · See surface</div></div>
+        <div class="cp-good"><div class="cp-label">✅ 建模大師</div><div class="cp-text">事件 → 觀察 → 建模 → 預測 → 決策 → 回饋 → 更新<br>累積模型<br>找結構、找機制</div><div class="cp-en">Systematic · Build models · Find structure</div></div>
+      </div>
+      <div class="model-grid">
+        <div class="model-item"><div class="model-zh">覺察模型</div><div class="model-en">Awareness Model</div><div class="model-q">我看到什麼？ What do I see?</div><div class="model-lever">↗ 注意力 Attention</div></div>
+        <div class="model-item"><div class="model-zh">信念模型</div><div class="model-en">Belief Model</div><div class="model-q">我相信什麼？ What do I believe?</div><div class="model-lever">↗ 解釋框架 Framework</div></div>
+        <div class="model-item"><div class="model-zh">預測模型</div><div class="model-en">Prediction Model</div><div class="model-q">我預期什麼？ What do I expect?</div><div class="model-lever">↗ 未來模擬 Future sim</div></div>
+        <div class="model-item"><div class="model-zh">決策模型</div><div class="model-en">Decision Model</div><div class="model-q">我選擇什麼？ What do I choose?</div><div class="model-lever">↗ 優先順序 Priority</div></div>
+        <div class="model-item"><div class="model-zh">回饋模型</div><div class="model-en">Feedback Model</div><div class="model-q">我學到什麼？ What did I learn?</div><div class="model-lever">↗ 誤差修正 Error fix</div></div>
+        <div class="model-item"><div class="model-zh">更新模型</div><div class="model-en">Update Model</div><div class="model-q">我如何升級？ How to upgrade?</div><div class="model-lever">↗ 模型重構 Rebuild</div></div>
+      </div>
+      <div class="chain-box">
+        <div class="chain-title">⬆️ 認知升級鏈 Cognitive Upgrade Chain</div>
+        <div class="chain-flow">
+          <div class="chain-item">資訊 Info</div><div class="chain-arrow">→</div>
+          <div class="chain-item">知識 Knowledge</div><div class="chain-arrow">→</div>
+          <div class="chain-item">理解 Understanding</div><div class="chain-arrow">→</div>
+          <div class="chain-item">模型 Model</div><div class="chain-arrow">→</div>
+          <div class="chain-item">預測 Prediction</div><div class="chain-arrow">→</div>
+          <div class="chain-item">決策 Decision</div><div class="chain-arrow">→</div>
+          <div class="chain-item">更新 Update</div><div class="chain-arrow">→</div>
+          <div class="chain-item">智慧 Wisdom</div>
+        </div>
+      </div>
+      <div class="result-box"><div class="result-label">⚡ 核心洞見</div><div class="result-zh">知識會過時，經驗有侷限，模型可以遷移</div><div class="result-en">Knowledge expires, experience has limits, models transfer to any domain</div></div>
+    </div>
+  </div>
+
+  <!-- PREDICTIVE CODING -->
+  <div class="expand-card" id="ec2">
+    <div class="expand-head" onclick="toggle('ec2')">
+      <div class="expand-num" style="background:var(--navy)">🔮</div>
+      <div class="expand-titles">
+        <div class="expand-zh">預測編碼 Predictive Coding</div>
+        <div class="expand-en">The brain is a prediction machine, not a camera</div>
+        <div class="expand-core">核心：大腦先猜世界，再驗證 · Brain predicts first, then verifies</div>
+      </div>
+      <div class="expand-arrow">▶</div>
+    </div>
+    <div class="expand-body">
+      <div class="compare-pair">
+        <div class="cp-bad"><div class="cp-label">❌ 普通人看大腦</div><div class="cp-text">記憶機器<br>焦慮=壞情緒<br>痛苦=懲罰<br>錯誤=失敗</div><div class="cp-en">Memory machine · Anxiety is bad · Pain is punishment</div></div>
+        <div class="cp-good"><div class="cp-label">✅ 建模大師看大腦</div><div class="cp-text">預測機器<br>焦慮=不確定性上升<br>痛苦=更新通知<br>錯誤=預測失敗→修正機會</div><div class="cp-en">Prediction machine · Anxiety = uncertainty · Pain = upgrade signal</div></div>
+      </div>
+      <div class="model-grid">
+        <div class="model-item" style="border-left-color:var(--navy)"><div class="model-zh">感知模型</div><div class="model-en">Perception Model</div><div class="model-q">我看到什麼？ What am I sensing?</div><div class="model-lever">↗ 注意力 Attention</div></div>
+        <div class="model-item" style="border-left-color:var(--navy)"><div class="model-zh">信念模型</div><div class="model-en">Belief Model</div><div class="model-q">我相信什麼？ What do I believe?</div><div class="model-lever">↗ 世界觀 Worldview</div></div>
+        <div class="model-item" style="border-left-color:var(--navy)"><div class="model-zh">預測模型</div><div class="model-en">Prediction Model</div><div class="model-q">我預期什麼？ What do I predict?</div><div class="model-lever">↗ 未來模擬 Sim</div></div>
+        <div class="model-item" style="border-left-color:var(--navy)"><div class="model-zh">誤差模型</div><div class="model-en">Error Model</div><div class="model-q">哪裡出錯？ Where's the error?</div><div class="model-lever">↗ 回饋 Feedback</div></div>
+        <div class="model-item" style="border-left-color:var(--navy)"><div class="model-zh">更新模型</div><div class="model-en">Update Model</div><div class="model-q">如何升級？ How to upgrade?</div><div class="model-lever">↗ 修正 Correction</div></div>
+        <div class="model-item" style="border-left-color:var(--navy)"><div class="model-zh">智慧模型</div><div class="model-en">Wisdom Model</div><div class="model-q">如何更準？ How to be more accurate?</div><div class="model-lever">↗ 長期迭代 Iterate</div></div>
+      </div>
+      <div class="chain-box">
+        <div class="chain-title">🔮 預測編碼循環 Predictive Coding Loop</div>
+        <div class="chain-flow">
+          <div class="chain-item">感知 Percept</div><div class="chain-arrow">→</div>
+          <div class="chain-item">建模 Model</div><div class="chain-arrow">→</div>
+          <div class="chain-item">預測 Predict</div><div class="chain-arrow">→</div>
+          <div class="chain-item">行動 Act</div><div class="chain-arrow">→</div>
+          <div class="chain-item">結果 Result</div><div class="chain-arrow">→</div>
+          <div class="chain-item">誤差 Error</div><div class="chain-arrow">→</div>
+          <div class="chain-item">修正 Fix</div><div class="chain-arrow">→</div>
+          <div class="chain-item">更新 Update</div><div class="chain-arrow">→</div>
+          <div class="chain-item">智慧 Wisdom</div>
+        </div>
+      </div>
+      <div class="result-box" style="border-left-color:var(--navy)"><div class="result-label" style="color:var(--navy)">⚡ 第一性原理</div><div class="result-zh">成長不是知道更多，而是讓預測越來越接近現實</div><div class="result-en">Growth isn't knowing more; it's making predictions that better match reality</div></div>
+    </div>
+  </div>
+
+  <!-- EMOTION -->
+  <div class="expand-card" id="ec3">
+    <div class="expand-head" onclick="toggle('ec3')">
+      <div class="expand-num" style="background:var(--teal)">💭</div>
+      <div class="expand-titles">
+        <div class="expand-zh">情緒管理 Emotion Intelligence</div>
+        <div class="expand-en">Emotions are system signals, not problems to eliminate</div>
+        <div class="expand-core">核心：解讀情緒，不是消滅情緒 · Read emotions, don't suppress them</div>
+      </div>
+      <div class="expand-arrow">▶</div>
+    </div>
+    <div class="expand-body">
+      <div class="compare-pair">
+        <div class="cp-bad"><div class="cp-label">❌ 普通人</div><div class="cp-text">壓抑情緒<br>焦慮=不好<br>憤怒=脾氣差<br>嫉妒=丟臉</div><div class="cp-en">Suppress · Anxiety is bad · Anger = bad temper</div></div>
+        <div class="cp-good"><div class="cp-label">✅ 建模大師</div><div class="cp-text">解讀情緒訊號<br>焦慮=預測失敗，需要準備<br>憤怒=界線被侵犯<br>嫉妒=渴望的方向</div><div class="cp-en">Decode signals · Anxiety = need preparation · Anger = boundary violation</div></div>
+      </div>
+      <div class="model-grid">
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">焦慮 + 智慧</div><div class="model-en">Anxiety + Wisdom</div><div class="model-q">= 謹慎 / Caution</div></div>
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">憤怒 + 智慧</div><div class="model-en">Anger + Wisdom</div><div class="model-q">= 界線 / Healthy Boundary</div></div>
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">悲傷 + 智慧</div><div class="model-en">Grief + Wisdom</div><div class="model-q">= 珍惜 / Appreciation</div></div>
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">嫉妒 + 智慧</div><div class="model-en">Envy + Wisdom</div><div class="model-q">= 成長動力 / Growth Drive</div></div>
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">恐懼 + 智慧</div><div class="model-en">Fear + Wisdom</div><div class="model-q">= 風險管理 / Risk Mgmt</div></div>
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">脆弱 + 智慧</div><div class="model-en">Vulnerability + Wisdom</div><div class="model-q">= 同理心 / Empathy</div></div>
+      </div>
+      <div class="chain-box">
+        <div class="chain-title">💭 情緒生成鏈 Emotion Generation Chain</div>
+        <div class="chain-flow">
+          <div class="chain-item">事件 Event</div><div class="chain-arrow">→</div>
+          <div class="chain-item">解讀 Interpret</div><div class="chain-arrow">→</div>
+          <div class="chain-item">情緒 Emotion</div><div class="chain-arrow">→</div>
+          <div class="chain-item">需求 Need</div><div class="chain-arrow">→</div>
+          <div class="chain-item">行動 Action</div><div class="chain-arrow">→</div>
+          <div class="chain-item">更新模型 Update</div>
+        </div>
+      </div>
+      <div class="ai-box">
+        <div class="ai-box-title">🤖 建模大師AI提示詞 AI Prompts</div>
+        <div class="ai-prompts">
+          <div class="ai-prompt"><div class="ai-prompt-zh">情緒診斷</div><div class="ai-prompt-text">請分析我目前的情緒狀態，列出感受、需求、信念與改善方向。<br><span class="ai-prompt-en">Analyze my current emotional state: feelings, needs, beliefs, improvement paths.</span></div></div>
+          <div class="ai-prompt"><div class="ai-prompt-zh">焦慮分析</div><div class="ai-prompt-text">請用預測模型分析我的焦慮來源，找出不確定性來源與可控因素。<br><span class="ai-prompt-en">Use predictive coding to analyze my anxiety sources and controllable factors.</span></div></div>
+        </div>
+      </div>
+      <div class="result-box" style="border-left-color:var(--teal)"><div class="result-label" style="color:var(--teal)">⚡ 核心洞見</div><div class="result-zh">情緒不是敵人。讀懂訊號的人在成長，壓抑訊號的人在重複同樣的問題。</div><div class="result-en">Emotions aren't enemies. Those who decode the signal grow; those who suppress it repeat the same problems.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: LIFE ══════════ -->
+<div class="page" id="page-life">
+
+  <div class="sec-head">
+    <div class="sec-icon">🌱</div>
+    <div>
+      <div class="sec-title">人生管理系統</div>
+      <div class="sec-sub">Life Operating System · Models Generate Destiny</div>
+    </div>
+  </div>
+
+  <div class="expand-card" id="el1">
+    <div class="expand-head" onclick="toggle('el1')">
+      <div class="expand-num" style="background:var(--teal)">🌱</div>
+      <div class="expand-titles">
+        <div class="expand-zh">人生管理 Life Management</div>
+        <div class="expand-en">Life is the sum of your models, not events</div>
+        <div class="expand-core">核心：你的模型決定你的預測，預測決定你的命運 · Models → Predictions → Destiny</div>
+      </div>
+      <div class="expand-arrow">▶</div>
+    </div>
+    <div class="expand-body">
+      <div class="compare-pair">
+        <div class="cp-bad"><div class="cp-label">❌ 普通人</div><div class="cp-text">看發生什麼事<br>失敗=我不夠好<br>痛苦=懲罰<br>命運=天注定</div><div class="cp-en">Event-focused · Failure = not good enough · Fate is fixed</div></div>
+        <div class="cp-good"><div class="cp-label">✅ 建模大師</div><div class="cp-text">建立人生系統<br>失敗=模型需要更新<br>痛苦=更新通知<br>命運=長期決策複利</div><div class="cp-en">System-focused · Failure = model error · Fate = compound decisions</div></div>
+      </div>
+      <div class="model-grid">
+        <div class="model-item"><div class="model-zh">穩態模型</div><div class="model-en">Homeostasis Model</div><div class="model-q">如何活得健康？</div><div class="model-lever">↗ 恢復力 Resilience</div></div>
+        <div class="model-item"><div class="model-zh">預測模型</div><div class="model-en">Prediction Model</div><div class="model-q">如何理解世界？</div><div class="model-lever">↗ 預測力 Prediction</div></div>
+        <div class="model-item"><div class="model-zh">決策模型</div><div class="model-en">Decision Model</div><div class="model-q">如何選擇？</div><div class="model-lever">↗ 勝率 Win Rate</div></div>
+        <div class="model-item"><div class="model-zh">關係模型</div><div class="model-en">Relationship Model</div><div class="model-q">如何合作？</div><div class="model-lever">↗ 信任 Trust</div></div>
+        <div class="model-item"><div class="model-zh">複利模型</div><div class="model-en">Compound Model</div><div class="model-q">如何持續成長？</div><div class="model-lever">↗ 習慣 Habits</div></div>
+        <div class="model-item"><div class="model-zh">更新模型</div><div class="model-en">Update Model</div><div class="model-q">如何持續進化？</div><div class="model-lever">↗ 修正力 Correction</div></div>
+      </div>
+      <div class="chain-box">
+        <div class="chain-title">🌱 人生升級鏈 Life Upgrade Chain</div>
+        <div class="chain-flow">
+          <div class="chain-item">覺察</div><div class="chain-arrow">→</div>
+          <div class="chain-item">建模</div><div class="chain-arrow">→</div>
+          <div class="chain-item">預測</div><div class="chain-arrow">→</div>
+          <div class="chain-item">行動</div><div class="chain-arrow">→</div>
+          <div class="chain-item">回饋</div><div class="chain-arrow">→</div>
+          <div class="chain-item">修正</div><div class="chain-arrow">→</div>
+          <div class="chain-item">更新</div><div class="chain-arrow">→</div>
+          <div class="chain-item">智慧</div>
+        </div>
+      </div>
+      <div class="model-grid" style="padding:0 16px 14px;">
+        <div class="model-item" style="border-left-color:var(--red);background:#fef2f2"><div class="model-zh">❌ 等有空再開始</div><div class="model-en">Wait for the right time</div><div class="model-q">✅ 先開始才有機會<br>Start to find opportunities</div></div>
+        <div class="model-item" style="border-left-color:var(--red);background:#fef2f2"><div class="model-zh">❌ 等有動力再行動</div><div class="model-en">Wait for motivation</div><div class="model-q">✅ 行動才產生動力<br>Action creates motivation</div></div>
+        <div class="model-item" style="border-left-color:var(--red);background:#fef2f2"><div class="model-zh">❌ 等問題消失</div><div class="model-en">Wait for problems to go away</div><div class="model-q">✅ 提升能力解決問題<br>Build capability to solve</div></div>
+      </div>
+      <div class="result-box"><div class="result-label">⚡ 第一性原理</div><div class="result-zh">人生不是事件的總和，而是模型的總和。你的模型決定你的預測，你的預測決定你的命運。</div><div class="result-en">Life is the sum of your models, not events. Models → Predictions → Destiny.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: HABIT & ATTENTION ══════════ -->
+<div class="page" id="page-habit">
+
+  <div class="sec-head">
+    <div class="sec-icon">⚡</div>
+    <div>
+      <div class="sec-title">習慣管理 · 注意力管理</div>
+      <div class="sec-sub">Habit Systems · Attention Architecture · Compound Growth</div>
+    </div>
+  </div>
+
+  <div class="expand-card" id="eh1">
+    <div class="expand-head" onclick="toggle('eh1')">
+      <div class="expand-num" style="background:var(--gold)">⚡</div>
+      <div class="expand-titles">
+        <div class="expand-zh">習慣管理 Habit Management</div>
+        <div class="expand-en">Environment design beats willpower every time</div>
+        <div class="expand-core">核心：先設計習慣，習慣就會設計你的未來 · Design habits → habits design your future</div>
+      </div>
+      <div class="expand-arrow">▶</div>
+    </div>
+    <div class="expand-body">
+      <div class="compare-pair">
+        <div class="cp-bad"><div class="cp-label">❌ 普通人</div><div class="cp-text">靠意志力<br>一次改很多<br>目標設定<br>拖延=個性不好</div><div class="cp-en">Willpower · Change many at once · Set goals · Procrastination = character flaw</div></div>
+        <div class="cp-good"><div class="cp-label">✅ 建模大師</div><div class="cp-text">靠環境設計<br>一次改一個節點<br>設計習慣系統<br>拖延=阻力太高，需重設計</div><div class="cp-en">Environment design · One node at a time · Habit system · Procrastination = friction too high</div></div>
+      </div>
+      <div class="model-grid">
+        <div class="model-item" style="border-left-color:var(--gold)"><div class="model-zh">提示模型 Cue</div><div class="model-en">Trigger Model</div><div class="model-q">如何開始？</div><div class="model-lever">↗ 觸發點 Trigger</div></div>
+        <div class="model-item" style="border-left-color:var(--gold)"><div class="model-zh">行動模型 Action</div><div class="model-en">Execution Model</div><div class="model-q">如何執行？</div><div class="model-lever">↗ 降摩擦力</div></div>
+        <div class="model-item" style="border-left-color:var(--gold)"><div class="model-zh">獎勵模型 Reward</div><div class="model-en">Reinforcement Model</div><div class="model-q">如何持續？</div><div class="model-lever">↗ 立即愉悅感</div></div>
+        <div class="model-item" style="border-left-color:var(--gold)"><div class="model-zh">身份模型 Identity</div><div class="model-en">Identity Model</div><div class="model-q">我是誰？</div><div class="model-lever">↗ 自我認同</div></div>
+        <div class="model-item" style="border-left-color:var(--gold)"><div class="model-zh">複利模型 Compound</div><div class="model-en">Compound Growth</div><div class="model-q">如何持續成長？</div><div class="model-lever">↗ 持續性</div></div>
+        <div class="model-item" style="border-left-color:var(--gold)"><div class="model-zh">更新模型 Optimize</div><div class="model-en">Optimization</div><div class="model-q">如何優化？</div><div class="model-lever">↗ 定期回饋</div></div>
+      </div>
+      <div class="lever-grid">
+        <div class="lever-item"><div class="lever-num2">1</div><div class="lever-content"><div class="lever-zh2">觸發槓桿 Cue</div><div class="lever-en2">Trigger Lever</div><div class="lever-how">固定時間 Fixed time</div></div></div>
+        <div class="lever-item"><div class="lever-num2">2</div><div class="lever-content"><div class="lever-zh2">環境槓桿 Environment</div><div class="lever-en2">Environment Lever</div><div class="lever-how">提前準備 Prepare in advance</div></div></div>
+        <div class="lever-item"><div class="lever-num2">3</div><div class="lever-content"><div class="lever-zh2">降阻槓桿 Friction</div><div class="lever-en2">Friction Reduction</div><div class="lever-how">從最小開始 Start tiny</div></div></div>
+        <div class="lever-item"><div class="lever-num2">4</div><div class="lever-content"><div class="lever-zh2">獎勵槓桿 Reward</div><div class="lever-en2">Reward Lever</div><div class="lever-how">完成就打勾 Check off done</div></div></div>
+        <div class="lever-item"><div class="lever-num2">5</div><div class="lever-content"><div class="lever-zh2">社群槓桿 Social</div><div class="lever-en2">Social Accountability</div><div class="lever-how">找同伴 Find partners</div></div></div>
+        <div class="lever-item"><div class="lever-num2">6</div><div class="lever-content"><div class="lever-zh2">身份槓桿 Identity</div><div class="lever-en2">Identity Lever</div><div class="lever-how">成為那種人 Become that person</div></div></div>
+      </div>
+      <div class="chain-box">
+        <div class="chain-title">⚡ 好習慣生成鏈 Good Habit Chain</div>
+        <div class="chain-flow">
+          <div class="chain-item">固定時間 Fixed Time</div><div class="chain-arrow">→</div>
+          <div class="chain-item">開始 Start</div><div class="chain-arrow">→</div>
+          <div class="chain-item">完成 Complete</div><div class="chain-arrow">→</div>
+          <div class="chain-item">成就感 Achievement</div><div class="chain-arrow">→</div>
+          <div class="chain-item">重複 Repeat</div><div class="chain-arrow">→</div>
+          <div class="chain-item">複利 Compound</div>
+        </div>
+      </div>
+      <div class="result-box" style="border-left-color:var(--gold)"><div class="result-label" style="color:var(--gold)">⚡ 建模大師最重視的6個習慣</div><div class="result-zh">每天閱讀 · 每天運動 · 每天反思 · 每天感恩 · 每天學習 · 每天幫助他人</div><div class="result-en">Daily: Reading · Exercise · Reflection · Gratitude · Learning · Helping Others</div></div>
+    </div>
+  </div>
+
+  <div class="expand-card" id="eh2">
+    <div class="expand-head" onclick="toggle('eh2')">
+      <div class="expand-num" style="background:var(--red)">🎯</div>
+      <div class="expand-titles">
+        <div class="expand-zh">注意力管理 Attention Management</div>
+        <div class="expand-en">Where attention goes, life follows</div>
+        <div class="expand-core">核心：注意力決定人生方向 · Attention determines the direction of life</div>
+      </div>
+      <div class="expand-arrow">▶</div>
+    </div>
+    <div class="expand-body">
+      <div class="compare-pair">
+        <div class="cp-bad"><div class="cp-label">❌ 普通人</div><div class="cp-text">管理時間<br>專心一點<br>分心=意志力差<br>學習=讀很久</div><div class="cp-en">Manage time · "Focus more" · Distraction = weak will · Study = study long</div></div>
+        <div class="cp-good"><div class="cp-label">✅ 建模大師</div><div class="cp-text">管理注意力<br>資源配置<br>分心=環境設計失敗<br>學習=投入高品質注意力</div><div class="cp-en">Manage attention · Resource allocation · Distraction = poor design · Learning = quality attention</div></div>
+      </div>
+      <div class="model-grid">
+        <div class="model-item" style="border-left-color:var(--red)"><div class="model-zh">聚焦模型 Focus</div><div class="model-en">Priority Focus</div><div class="model-q">最重要是什麼？</div><div class="model-lever">↗ 優先順序</div></div>
+        <div class="model-item" style="border-left-color:var(--red)"><div class="model-zh">過濾模型 Filter</div><div class="model-en">Information Filter</div><div class="model-q">什麼不重要？</div><div class="model-lever">↗ 刪除 Delete</div></div>
+        <div class="model-item" style="border-left-color:var(--red)"><div class="model-zh">能量模型 Energy</div><div class="model-en">Biological Rhythm</div><div class="model-q">何時最專注？</div><div class="model-lever">↗ 生理節律</div></div>
+        <div class="model-item" style="border-left-color:var(--red)"><div class="model-zh">環境模型 Environment</div><div class="model-en">Space Design</div><div class="model-q">如何減少干擾？</div><div class="model-lever">↗ 空間設計</div></div>
+        <div class="model-item" style="border-left-color:var(--red)"><div class="model-zh">深度模型 Deep Work</div><div class="model-en">Flow State</div><div class="model-q">如何進入心流？</div><div class="model-lever">↗ 單工 Single-task</div></div>
+        <div class="model-item" style="border-left-color:var(--red)"><div class="model-zh">更新模型 Optimize</div><div class="model-en">Continuous Reflection</div><div class="model-q">如何持續優化？</div><div class="model-lever">↗ 反思 Reflect</div></div>
+      </div>
+      <div class="model-grid" style="padding: 0 16px 14px;">
+        <div class="model-item" style="border-left-color:var(--red);background:#fef2f2"><div class="model-zh">⚫ 注意力黑洞</div><div class="model-en">Attention Black Holes</div><div class="model-q">短影音 / 無效社群 / 八卦 / 抱怨 / 資訊成癮<br><small>Short videos / Endless scrolling / Gossip / Complaints</small></div></div>
+        <div class="model-item" style="border-left-color:var(--green);background:#f0faf5"><div class="model-zh">💚 注意力資產</div><div class="model-en">Attention Assets</div><div class="model-q">閱讀 / 運動 / 寫作 / 反思 / 學習 / 創作<br><small>Reading / Exercise / Writing / Reflection / Learning</small></div></div>
+      </div>
+      <div class="result-box" style="border-left-color:var(--red)"><div class="result-label" style="color:var(--red)">⚡ 第一性原理</div><div class="result-zh">你注意什麼，你就會學習什麼；你學習什麼，你就會成為什麼。人生本質上是注意力分配的結果。</div><div class="result-en">What you attend to, you learn; what you learn, you become. Life is ultimately the result of attention allocation.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: RELATION ══════════ -->
+<div class="page" id="page-relation">
+
+  <div class="sec-head">
+    <div class="sec-icon">🤝</div>
+    <div>
+      <div class="sec-title">關係管理 · 溝通說話</div>
+      <div class="sec-sub">Relationship Systems · Communication Architecture · Influence Design</div>
+    </div>
+  </div>
+
+  <div class="expand-card" id="er1">
+    <div class="expand-head" onclick="toggle('er1')">
+      <div class="expand-num" style="background:var(--green)">🤝</div>
+      <div class="expand-titles">
+        <div class="expand-zh">關係管理 Relationship Management</div>
+        <div class="expand-en">All relationships are prediction systems — trust = predictability</div>
+        <div class="expand-core">核心：你相信一個人，因為你能預測他 · Trust = ability to predict</div>
+      </div>
+      <div class="expand-arrow">▶</div>
+    </div>
+    <div class="expand-body">
+      <div class="compare-pair">
+        <div class="cp-bad"><div class="cp-label">❌ 普通人</div><div class="cp-text">關係=感覺<br>衝突=誰對誰錯<br>溝通=說服對方<br>婚姻=愛情問題</div><div class="cp-en">Feelings · Conflict = right vs wrong · Communication = persuasion</div></div>
+        <div class="cp-good"><div class="cp-label">✅ 建模大師</div><div class="cp-text">關係=預測系統<br>衝突=模型差異<br>溝通=建立共同模型<br>婚姻=合作系統</div><div class="cp-en">Prediction system · Conflict = model mismatch · Communication = shared model building</div></div>
+      </div>
+      <div class="lever-grid">
+        <div class="lever-item"><div class="lever-num2">1</div><div class="lever-content"><div class="lever-zh2">傾聽槓桿 Listen</div><div class="lever-en2">Active Listening</div><div class="lever-how">先聽後說 Listen before speaking</div></div></div>
+        <div class="lever-item"><div class="lever-num2">2</div><div class="lever-content"><div class="lever-zh2">同理槓桿 Empathy</div><div class="lever-en2">Perspective Taking</div><div class="lever-how">站在對方角度 Take their perspective</div></div></div>
+        <div class="lever-item"><div class="lever-num2">3</div><div class="lever-content"><div class="lever-zh2">感謝槓桿 Gratitude</div><div class="lever-en2">Appreciation Habits</div><div class="lever-how">多看優點 See the good</div></div></div>
+        <div class="lever-item"><div class="lever-num2">4</div><div class="lever-content"><div class="lever-zh2">誠信槓桿 Integrity</div><div class="lever-en2">Consistent Action</div><div class="lever-how">說到做到 Keep promises</div></div></div>
+        <div class="lever-item"><div class="lever-num2">5</div><div class="lever-content"><div class="lever-zh2">邊界槓桿 Boundary</div><div class="lever-en2">Healthy Limits</div><div class="lever-how">清楚原則 Clear principles</div></div></div>
+        <div class="lever-item"><div class="lever-num2">6</div><div class="lever-content"><div class="lever-zh2">修復槓桿 Repair</div><div class="lever-en2">Conflict Recovery</div><div class="lever-how">衝突後重建 Rebuild after conflict</div></div></div>
+      </div>
+      <div class="chain-box">
+        <div class="chain-title">🤝 高品質關係生成鏈 High-Quality Relationship Chain</div>
+        <div class="chain-flow">
+          <div class="chain-item">覺察</div><div class="chain-arrow">→</div>
+          <div class="chain-item">理解</div><div class="chain-arrow">→</div>
+          <div class="chain-item">同理</div><div class="chain-arrow">→</div>
+          <div class="chain-item">信任</div><div class="chain-arrow">→</div>
+          <div class="chain-item">合作</div><div class="chain-arrow">→</div>
+          <div class="chain-item">支持</div><div class="chain-arrow">→</div>
+          <div class="chain-item">共同成長</div>
+        </div>
+      </div>
+      <div class="result-box" style="border-left-color:var(--green)"><div class="result-label" style="color:var(--green)">⚡ 核心洞見</div><div class="result-zh">感情會波動，信任會累積，系統能複利。讓身邊的人因為認識你而變得更好。</div><div class="result-en">Feelings fluctuate; trust compounds; systems multiply. Make people better for knowing you.</div></div>
+    </div>
+  </div>
+
+  <div class="expand-card" id="er2">
+    <div class="expand-head" onclick="toggle('er2')">
+      <div class="expand-num" style="background:var(--teal)">💬</div>
+      <div class="expand-titles">
+        <div class="expand-zh">溝通說話 Communication & Speech</div>
+        <div class="expand-en">Output models, not just information — language is a model transfer system</div>
+        <div class="expand-core">核心：你懂了，才算我講了 · Communication = shared understanding, not just transmission</div>
+      </div>
+      <div class="expand-arrow">▶</div>
+    </div>
+    <div class="expand-body">
+      <div class="compare-pair">
+        <div class="cp-bad"><div class="cp-label">❌ 普通人</div><div class="cp-text">把話說出去<br>我想說什麼<br>說服對方<br>衝突=誰對誰錯</div><div class="cp-en">Transmit words · What I want to say · Persuade · Win the argument</div></div>
+        <div class="cp-good"><div class="cp-label">✅ 建模大師</div><div class="cp-text">讓對方聽進去<br>對方能聽懂什麼<br>降低阻抗<br>衝突=模型差異</div><div class="cp-en">Ensure understanding · What they can receive · Reduce resistance · Conflict = model mismatch</div></div>
+      </div>
+      <div class="model-grid">
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">需求模型 Needs</div><div class="model-en">Understand Needs</div><div class="model-q">對方要什麼？</div><div class="model-lever">↗ 共鳴 Resonance</div></div>
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">信任模型 Trust</div><div class="model-en">Trust Building</div><div class="model-q">為何相信你？</div><div class="model-lever">↗ 一致性</div></div>
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">故事模型 Story</div><div class="model-en">Narrative Model</div><div class="model-q">如何記得住？</div><div class="model-lever">↗ 故事化</div></div>
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">預測模型 Prediction</div><div class="model-en">Change Minds</div><div class="model-q">如何改變想法？</div><div class="model-lever">↗ 未來模擬</div></div>
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">行動模型 Action</div><div class="model-en">Drive Action</div><div class="model-q">如何開始做？</div><div class="model-lever">↗ 引導下一步</div></div>
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">更新模型 Update</div><div class="model-en">Sustained Change</div><div class="model-q">如何持續改變？</div><div class="model-lever">↗ 追蹤 Track</div></div>
+      </div>
+      <div class="ai-box">
+        <div class="ai-box-title">🤖 建模大師溝通AI提示詞</div>
+        <div class="ai-prompts">
+          <div class="ai-prompt"><div class="ai-prompt-zh">高共鳴表達</div><div class="ai-prompt-text">請把這段話改寫成高共鳴、高理解、低防衛的版本。<br><span class="ai-prompt-en">Rewrite this to be high-resonance, easy to understand, and low-defense.</span></div></div>
+          <div class="ai-prompt"><div class="ai-prompt-zh">班導溝通升級</div><div class="ai-prompt-text">不要說「不要滑手機」，而是：「你有沒有發現，手機正在偷走你的夢想？現在的快樂，可能正在交換未來的選擇權。」<br><span class="ai-prompt-en">"Have you noticed your phone is stealing your dreams? Today's pleasure may be trading away tomorrow's freedom."</span></div></div>
+        </div>
+      </div>
+      <div class="result-box" style="border-left-color:var(--teal)"><div class="result-label" style="color:var(--teal)">⚡ 核心洞見</div><div class="result-zh">資訊會被忘記，價值會被記住，模型會被複製。當對方覺得你懂他，他才願意聽你。</div><div class="result-en">Information is forgotten, value is remembered, models are replicated. When they feel understood, they'll listen.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: HEALTH ══════════ -->
+<div class="page" id="page-health">
+
+  <div class="sec-head">
+    <div class="sec-icon">💊</div>
+    <div>
+      <div class="sec-title">健康 · 睡眠 · 壓力管理</div>
+      <div class="sec-sub">Health Systems · Sleep Engineering · Stress as Upgrade Signal</div>
+    </div>
+  </div>
+
+  <div class="expand-card" id="ehl1">
+    <div class="expand-head" onclick="toggle('ehl1')">
+      <div class="expand-num" style="background:var(--red)">💊</div>
+      <div class="expand-titles">
+        <div class="expand-zh">健康管理 Health Management</div>
+        <div class="expand-en">Optimize the system, not just treat symptoms</div>
+        <div class="expand-core">核心：疾病是系統警報，症狀是結果 · Disease = system alarm; symptoms = downstream effects</div>
+      </div>
+      <div class="expand-arrow">▶</div>
+    </div>
+    <div class="expand-body">
+      <div class="compare-pair">
+        <div class="cp-bad"><div class="cp-label">❌ 普通人</div><div class="cp-text">疲勞→補B群<br>失眠→安眠藥<br>生病→治症狀<br>健康=不生病</div><div class="cp-en">Fatigue → B vitamins · Insomnia → sleeping pills · Health = no disease</div></div>
+        <div class="cp-good"><div class="cp-label">✅ 建模大師</div><div class="cp-text">疲勞→睡眠/血糖/發炎/粒線體→找根因<br>失眠→HPA軸/皮質醇/安全感→修系統<br>健康=穩態能力+修復能力+適應能力</div><div class="cp-en">Fatigue → find root cause in system · Health = homeostasis + repair + adaptation</div></div>
+      </div>
+      <div class="model-grid">
+        <div class="model-item" style="border-left-color:var(--red)"><div class="model-zh">穩態模型 Homeostasis</div><div class="model-en">Balance Model</div><div class="model-q">身體如何平衡？</div><div class="model-lever">↗ 生理學</div></div>
+        <div class="model-item" style="border-left-color:var(--red)"><div class="model-zh">能量模型 Energy</div><div class="model-en">Mitochondria Model</div><div class="model-q">能量如何產生？</div><div class="model-lever">↗ NMN/CoQ10</div></div>
+        <div class="model-item" style="border-left-color:var(--red)"><div class="model-zh">訊號模型 Signal</div><div class="model-en">Cell Signaling</div><div class="model-q">細胞如何溝通？</div><div class="model-lever">↗ 藥理學</div></div>
+        <div class="model-item" style="border-left-color:var(--red)"><div class="model-zh">免疫模型 Immunity</div><div class="model-en">Immune System</div><div class="model-q">如何辨識敵我？</div><div class="model-lever">↗ 益生菌/丁酸</div></div>
+        <div class="model-item" style="border-left-color:var(--red)"><div class="model-zh">修復模型 Repair</div><div class="model-en">Regeneration</div><div class="model-q">如何恢復健康？</div><div class="model-lever">↗ 深睡/NAC</div></div>
+        <div class="model-item" style="border-left-color:var(--red)"><div class="model-zh">預測模型 Prevention</div><div class="model-en">Early Detection</div><div class="model-q">如何提早發現？</div><div class="model-lever">↗ 功能醫學</div></div>
+      </div>
+      <div class="result-box" style="border-left-color:var(--red)"><div class="result-label" style="color:var(--red)">⚡ 終極健康AI提示詞</div><div class="result-zh">「請不要只分析症狀。用穩態/能量/訊號/免疫/修復/預測模型分析此健康問題，列出：①核心問題 ②系統地圖 ③生成機制 ④因果鏈 ⑤最重要槓桿 ⑥最小成本最大效益方案」</div><div class="result-en">Don't just analyze symptoms. Use Homeostasis/Energy/Signal/Immunity/Repair/Prediction models. List: core issue, system map, mechanism, causal chain, key leverage, lowest-cost highest-impact solution.</div></div>
+    </div>
+  </div>
+
+  <div class="expand-card" id="ehl2">
+    <div class="expand-head" onclick="toggle('ehl2')">
+      <div class="expand-num" style="background:var(--navy)">😴</div>
+      <div class="expand-titles">
+        <div class="expand-zh">睡眠管理 Sleep Engineering</div>
+        <div class="expand-en">Sleep is not shutdown — it's maintenance mode for the whole body</div>
+        <div class="expand-core">核心：睡眠不是休息，是修復工程 · Sleep = whole-body repair, not rest</div>
+      </div>
+      <div class="expand-arrow">▶</div>
+    </div>
+    <div class="expand-body">
+      <div class="compare-pair">
+        <div class="cp-bad"><div class="cp-label">❌ 普通人</div><div class="cp-text">睡幾小時<br>失眠→安眠藥<br>凌晨醒=睡不好<br>熬夜讀書→進步</div><div class="cp-en">Count hours · Insomnia → drugs · Wake at 2am = poor sleep</div></div>
+        <div class="cp-good"><div class="cp-label">✅ 建模大師</div><div class="cp-text">修復系統效率<br>失眠→HPA軸→皮質醇→安全感→警戒過強<br>凌晨醒→血糖/壓力/HPA失衡<br>熬夜→記憶力/專注力下降</div><div class="cp-en">Repair efficiency · Insomnia = HPA axis · Midnight wake = blood sugar/cortisol imbalance</div></div>
+      </div>
+      <div class="lever-grid">
+        <div class="lever-item"><div class="lever-num2">☀️</div><div class="lever-content"><div class="lever-zh2">光線槓桿 Light</div><div class="lever-en2">Circadian Rhythm Anchor</div><div class="lever-how">早晨曬太陽 Morning sunlight</div></div></div>
+        <div class="lever-item"><div class="lever-num2">⏰</div><div class="lever-content"><div class="lever-zh2">作息槓桿 Rhythm</div><div class="lever-en2">Sleep Schedule Consistency</div><div class="lever-how">固定睡醒時間 Fixed schedule</div></div></div>
+        <div class="lever-item"><div class="lever-num2">🏃</div><div class="lever-content"><div class="lever-zh2">運動槓桿 Exercise</div><div class="lever-en2">Physical Activity Effect</div><div class="lever-how">白天規律活動 Daytime activity</div></div></div>
+        <div class="lever-item"><div class="lever-num2">🧘</div><div class="lever-content"><div class="lever-zh2">壓力槓桿 Stress</div><div class="lever-en2">Pre-Sleep Relaxation</div><div class="lever-how">睡前放鬆 Wind down ritual</div></div></div>
+        <div class="lever-item"><div class="lever-num2">🥗</div><div class="lever-content"><div class="lever-zh2">營養槓桿 Nutrition</div><div class="lever-en2">Repair Materials</div><div class="lever-how">補足修復原料 Supply repair nutrients</div></div></div>
+        <div class="lever-item"><div class="lever-num2">🌙</div><div class="lever-content"><div class="lever-zh2">環境槓桿 Environment</div><div class="lever-en2">Sleep Environment Design</div><div class="lever-how">黑暗安靜涼爽 Dark, quiet, cool</div></div></div>
+      </div>
+      <div class="result-box" style="border-left-color:var(--navy)"><div class="result-label" style="color:var(--navy)">⚡ 睡眠第一性原理</div><div class="result-zh">睡眠不是關機，是維修模式。白天消耗，晚上修復。修復不足 → 疲勞累積 → 發炎增加 → 疾病增加</div><div class="result-en">Sleep is not shutdown — it's maintenance mode. Daytime = consume. Nighttime = repair. Poor repair → fatigue → inflammation → disease.</div></div>
+    </div>
+  </div>
+
+  <div class="expand-card" id="ehl3">
+    <div class="expand-head" onclick="toggle('ehl3')">
+      <div class="expand-num" style="background:var(--purple)">🧘</div>
+      <div class="expand-titles">
+        <div class="expand-zh">壓力管理 Stress Management</div>
+        <div class="expand-en">True damage isn't stress — it's insufficient recovery</div>
+        <div class="expand-core">核心：壓力是升級通知，不是懲罰 · Stress = upgrade signal, not punishment</div>
+      </div>
+      <div class="expand-arrow">▶</div>
+    </div>
+    <div class="expand-body">
+      <div class="compare-pair">
+        <div class="cp-bad"><div class="cp-label">❌ 普通人</div><div class="cp-text">壓力=壞東西<br>消除壓力<br>忍耐=撐住<br>不撐最久=最強</div><div class="cp-en">Stress = enemy · Eliminate stress · Endure = strength · Toughest = strongest</div></div>
+        <div class="cp-good"><div class="cp-label">✅ 建模大師</div><div class="cp-text">壓力=適應訊號<br>提升恢復力<br>壓力→恢復→壓力→恢復<br>恢復最快=最強</div><div class="cp-en">Stress = adaptation signal · Build recovery · Stress→Rest→Stress→Rest · Fastest recovery = strongest</div></div>
+      </div>
+      <div class="lever-grid">
+        <div class="lever-item"><div class="lever-num2">😴</div><div class="lever-content"><div class="lever-zh2">睡眠槓桿 Sleep</div><div class="lever-en2">Primary Recovery</div><div class="lever-how">固定睡眠時間 Fixed sleep schedule</div></div></div>
+        <div class="lever-item"><div class="lever-num2">🏃</div><div class="lever-content"><div class="lever-zh2">運動槓桿 Exercise</div><div class="lever-en2">Stress Release</div><div class="lever-how">每日活動30分鐘 30 min daily</div></div></div>
+        <div class="lever-item"><div class="lever-num2">🌬️</div><div class="lever-content"><div class="lever-zh2">呼吸槓桿 Breathing</div><div class="lever-en2">ANS Regulation</div><div class="lever-how">腹式呼吸 Diaphragmatic breathing</div></div></div>
+        <div class="lever-item"><div class="lever-num2">🚫</div><div class="lever-content"><div class="lever-zh2">邊界槓桿 Boundary</div><div class="lever-en2">Energy Protection</div><div class="lever-how">學會說不 Learn to say no</div></div></div>
+        <div class="lever-item"><div class="lever-num2">👥</div><div class="lever-content"><div class="lever-zh2">關係槓桿 Support</div><div class="lever-en2">Social Buffer</div><div class="lever-how">建立支持系統 Build support network</div></div></div>
+        <div class="lever-item"><div class="lever-num2">🎯</div><div class="lever-content"><div class="lever-zh2">意義槓桿 Purpose</div><div class="lever-en2">Meaning as Resilience</div><div class="lever-how">找到目標感 Find your "why"</div></div></div>
+      </div>
+      <div class="result-box" style="border-left-color:var(--purple)"><div class="result-label" style="color:var(--purple)">⚡ 核心洞見</div><div class="result-zh">壓力=需求 > 能力。壓力升級鏈：覺察→理解→調整→適應→成長。利用壓力升級系統。</div><div class="result-en">Stress = demand > capacity. Upgrade chain: Awareness → Understanding → Adjustment → Adaptation → Growth. Use stress to upgrade.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: LEADERSHIP ══════════ -->
+<div class="page" id="page-leadership">
+
+  <div class="sec-head">
+    <div class="sec-icon">👑</div>
+    <div>
+      <div class="sec-title">領導管理 · 決策管理</div>
+      <div class="sec-sub">Leadership Systems · Decision Quality · Long-term Compound Thinking</div>
+    </div>
+  </div>
+
+  <div class="expand-card" id="eld1">
+    <div class="expand-head" onclick="toggle('eld1')">
+      <div class="expand-num" style="background:var(--gold)">👑</div>
+      <div class="expand-titles">
+        <div class="expand-zh">領導管理 Leadership Management</div>
+        <div class="expand-en">Build culture, not commands — leaders who build systems replace themselves</div>
+        <div class="expand-core">核心：真正的領導不是控制，是創造條件讓別人變得更好 · Leadership = creating conditions for others to thrive</div>
+      </div>
+      <div class="expand-arrow">▶</div>
+    </div>
+    <div class="expand-body">
+      <div class="compare-pair">
+        <div class="cp-bad"><div class="cp-label">❌ 普通人</div><div class="cp-text">領導→發命令<br>問題→找誰犯錯<br>管理→解決問題<br>普通班導→每天盯學生</div><div class="cp-en">Leadership = commands · Blame people · Management = firefighting</div></div>
+        <div class="cp-good"><div class="cp-label">✅ 建模大師</div><div class="cp-text">願景→文化→制度→行為→結果<br>問題→哪個系統失效<br>管理→預防問題<br>大師班導→建六大槓桿系統</div><div class="cp-en">Vision→Culture→System→Behavior→Results · System failed → Prevention-focused</div></div>
+      </div>
+      <div class="model-grid">
+        <div class="model-item" style="border-left-color:var(--gold)"><div class="model-zh">願景模型 Vision</div><div class="model-en">Direction Model</div><div class="model-q">要去哪裡？</div><div class="model-lever">↗ 方向 Direction</div></div>
+        <div class="model-item" style="border-left-color:var(--gold)"><div class="model-zh">文化模型 Culture</div><div class="model-en">Values Model</div><div class="model-q">成為什麼人？</div><div class="model-lever">↗ 價值觀 Values</div></div>
+        <div class="model-item" style="border-left-color:var(--gold)"><div class="model-zh">制度模型 System</div><div class="model-en">Operating System</div><div class="model-q">如何運作？</div><div class="model-lever">↗ SOP 標準化</div></div>
+        <div class="model-item" style="border-left-color:var(--gold)"><div class="model-zh">自治模型 Autonomy</div><div class="model-en">Self-Governance</div><div class="model-q">如何自我管理？</div><div class="model-lever">↗ 授權 Empower</div></div>
+        <div class="model-item" style="border-left-color:var(--gold)"><div class="model-zh">回饋模型 Feedback</div><div class="model-en">Continuous Improvement</div><div class="model-q">如何進步？</div><div class="model-lever">↗ 修正 Correction</div></div>
+        <div class="model-item" style="border-left-color:var(--gold)"><div class="model-zh">培養模型 Develop</div><div class="model-en">Talent Pipeline</div><div class="model-q">如何複製人才？</div><div class="model-lever">↗ 成長 Growth</div></div>
+      </div>
+      <div class="chain-box">
+        <div class="chain-title">👑 領導生成鏈 Leadership Generation Chain</div>
+        <div class="chain-flow">
+          <div class="chain-item">願景 Vision</div><div class="chain-arrow">→</div>
+          <div class="chain-item">認同 Identity</div><div class="chain-arrow">→</div>
+          <div class="chain-item">文化 Culture</div><div class="chain-arrow">→</div>
+          <div class="chain-item">行為 Behavior</div><div class="chain-arrow">→</div>
+          <div class="chain-item">習慣 Habit</div><div class="chain-arrow">→</div>
+          <div class="chain-item">成果 Results</div><div class="chain-arrow">→</div>
+          <div class="chain-item">信任 Trust</div><div class="chain-arrow">→</div>
+          <div class="chain-item">影響力 Influence</div>
+        </div>
+      </div>
+
+      <table class="compare-table">
+        <thead><tr><th>情境</th><th>❌ 普通人</th><th>✅ 建模大師</th><th>🤖 AI提示詞</th></tr></thead>
+        <tbody>
+          <tr><td>看管理</td><td>解決問題<br><small>Solve problems</small></td><td>預防問題<br><small>Prevent problems</small></td><td>請建立預防性管理系統<br><small>Build preventive management</small></td></tr>
+          <tr><td>看團隊</td><td>一群人<br><small>A group of people</small></td><td>一個生態系統<br><small>An ecosystem</small></td><td>請分析團隊動力結構<br><small>Analyze team dynamics</small></td></tr>
+          <tr><td>看人才</td><td>找高手<br><small>Find experts</small></td><td>培養高手<br><small>Develop experts</small></td><td>請設計人才培養系統<br><small>Design talent pipeline</small></td></tr>
+          <tr><td>看執行</td><td>自己做<br><small>Do it yourself</small></td><td>建立自治<br><small>Build self-governance</small></td><td>請設計自治系統<br><small>Design autonomous systems</small></td></tr>
+        </tbody>
+      </table>
+      <div class="result-box" style="border-left-color:var(--gold)"><div class="result-label" style="color:var(--gold)">⚡ 最高維洞見</div><div class="result-zh">真正高維的領導不是成為英雄，而是建立一個即使你不在，也能持續成長的系統。</div><div class="result-en">The highest form of leadership isn't being the hero — it's building a system that grows even without you.</div></div>
+    </div>
+  </div>
+
+  <div class="expand-card" id="eld2">
+    <div class="expand-head" onclick="toggle('eld2')">
+      <div class="expand-num" style="background:var(--navy)">⚖️</div>
+      <div class="expand-titles">
+        <div class="expand-zh">決策管理 Decision Management</div>
+        <div class="expand-en">Life quality = Decision quality × Number of decisions</div>
+        <div class="expand-core">核心：命運不是由一次決定決定，而是一萬次小決策長期複利 · Destiny = compound of thousands of small decisions</div>
+      </div>
+      <div class="expand-arrow">▶</div>
+    </div>
+    <div class="expand-body">
+      <div class="compare-pair">
+        <div class="cp-bad"><div class="cp-label">❌ 普通人</div><div class="cp-text">靠感覺決定<br>看立即結果<br>怕賠錢<br>做對一次</div><div class="cp-en">Gut feeling · Immediate results · Fear loss · Win once</div></div>
+        <div class="cp-good"><div class="cp-label">✅ 建模大師</div><div class="cp-text">建決策框架<br>看長期複利<br>管理風險<br>提高整體勝率</div><div class="cp-en">Decision framework · Long-term compound · Risk management · Improve win rate</div></div>
+      </div>
+      <div class="model-grid">
+        <div class="model-item" style="border-left-color:var(--navy)"><div class="model-zh">目標模型 Goal</div><div class="model-en">Direction Model</div><div class="model-q">我要什麼？</div><div class="model-lever">↗ 方向 Direction</div></div>
+        <div class="model-item" style="border-left-color:var(--navy)"><div class="model-zh">資訊模型 Info</div><div class="model-en">Intelligence Model</div><div class="model-q">我知道什麼？</div><div class="model-lever">↗ 情報 Intelligence</div></div>
+        <div class="model-item" style="border-left-color:var(--navy)"><div class="model-zh">預測模型 Predict</div><div class="model-en">Probability Model</div><div class="model-q">未來可能如何？</div><div class="model-lever">↗ 勝率 Win Rate</div></div>
+        <div class="model-item" style="border-left-color:var(--navy)"><div class="model-zh">風險模型 Risk</div><div class="model-en">Downside Protection</div><div class="model-q">最壞情況是什麼？</div><div class="model-lever">↗ 保護 Protection</div></div>
+        <div class="model-item" style="border-left-color:var(--navy)"><div class="model-zh">複利模型 Compound</div><div class="model-en">Long-term Impact</div><div class="model-q">長期影響是什麼？</div><div class="model-lever">↗ 時間 Time</div></div>
+        <div class="model-item" style="border-left-color:var(--navy)"><div class="model-zh">更新模型 Update</div><div class="model-en">Continuous Calibration</div><div class="model-q">如何持續修正？</div><div class="model-lever">↗ 回饋 Feedback</div></div>
+      </div>
+      <div class="ai-box">
+        <div class="ai-box-title">🤖 決策AI提示詞</div>
+        <div class="ai-prompts">
+          <div class="ai-prompt"><div class="ai-prompt-zh">決策診斷</div><div class="ai-prompt-text">請分析這個決策的核心目標、關鍵變數、風險與最佳策略。<br><span class="ai-prompt-en">Analyze: core goal, key variables, risks, and optimal strategy for this decision.</span></div></div>
+          <div class="ai-prompt"><div class="ai-prompt-zh">長期複利分析</div><div class="ai-prompt-text">請分析此決策一年、三年、五年後可能產生的結果，並建立三種情境模型。<br><span class="ai-prompt-en">Model outcomes 1yr/3yr/5yr. Build best-case, neutral, worst-case scenarios.</span></div></div>
+        </div>
+      </div>
+      <div class="result-box" style="border-left-color:var(--navy)"><div class="result-label" style="color:var(--navy)">⚡ 決策六大錯誤來源</div><div class="result-zh">情緒決策 · 短期思維 · 資訊不足 · 從眾效應 · 過度自信 · 拒絕修正</div><div class="result-en">Emotional decisions · Short-term thinking · Insufficient information · Herd mentality · Overconfidence · Refusing to update</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: WEALTH ══════════ -->
+<div class="page" id="page-wealth">
+
+  <div class="sec-head">
+    <div class="sec-icon">💰</div>
+    <div>
+      <div class="sec-title">財富管理 · 時間管理 · 空間管理</div>
+      <div class="sec-sub">Wealth Systems · Time Architecture · Space as Behavior Design</div>
+    </div>
+  </div>
+
+  <div class="expand-card" id="ew1">
+    <div class="expand-head" onclick="toggle('ew1')">
+      <div class="expand-num" style="background:var(--green)">💰</div>
+      <div class="expand-titles">
+        <div class="expand-zh">財富管理 Wealth Management</div>
+        <div class="expand-en">Build systems, not just chase money — true wealth = cash flow + assets + compound</div>
+        <div class="expand-core">核心：建系統，讓系統睡覺也能創造價值 · Build systems that create value even when you sleep</div>
+      </div>
+      <div class="expand-arrow">▶</div>
+    </div>
+    <div class="expand-body">
+      <div class="compare-pair">
+        <div class="cp-bad"><div class="cp-label">❌ 普通人</div><div class="cp-text">追錢<br>用時間換錢<br>有錢再投資<br>存退休金</div><div class="cp-en">Chase money · Trade time for money · Invest when rich · Save for retirement</div></div>
+        <div class="cp-good"><div class="cp-label">✅ 建模大師</div><div class="cp-text">建系統<br>用系統換錢<br>每月固定投資複利<br>建立被動收入</div><div class="cp-en">Build systems · Systems create money · Monthly compound investment · Build passive income</div></div>
+      </div>
+      <div class="lever-grid">
+        <div class="lever-item"><div class="lever-num2">1</div><div class="lever-content"><div class="lever-zh2">技能槓桿 Skills</div><div class="lever-en2">High-Value Skills</div><div class="lever-how">持續學習高價值技能</div></div></div>
+        <div class="lever-item"><div class="lever-num2">2</div><div class="lever-content"><div class="lever-zh2">系統槓桿 Systems</div><div class="lever-en2">SOP / Courses / APP</div><div class="lever-how">SOP課程APP自動化</div></div></div>
+        <div class="lever-item"><div class="lever-num2">3</div><div class="lever-content"><div class="lever-zh2">AI槓桿 AI</div><div class="lever-en2">AI 10x Productivity</div><div class="lever-how">AI提高10倍產能</div></div></div>
+        <div class="lever-item"><div class="lever-num2">4</div><div class="lever-content"><div class="lever-zh2">團隊槓桿 Team</div><div class="lever-en2">Cadres & Partners</div><div class="lever-how">幹部夥伴代理</div></div></div>
+        <div class="lever-item"><div class="lever-num2">5</div><div class="lever-content"><div class="lever-zh2">資本槓桿 Capital</div><div class="lever-en2">Asset Allocation</div><div class="lever-how">股票ETF資產配置</div></div></div>
+        <div class="lever-item"><div class="lever-num2">6</div><div class="lever-content"><div class="lever-zh2">時間槓桿 Time</div><div class="lever-en2">Compound Growth</div><div class="lever-how">複利與長期投資</div></div></div>
+      </div>
+      <div class="chain-box">
+        <div class="chain-title">💰 財富生成鏈 Wealth Generation Chain</div>
+        <div class="chain-flow">
+          <div class="chain-item">知識</div><div class="chain-arrow">→</div>
+          <div class="chain-item">技能</div><div class="chain-arrow">→</div>
+          <div class="chain-item">價值</div><div class="chain-arrow">→</div>
+          <div class="chain-item">收入</div><div class="chain-arrow">→</div>
+          <div class="chain-item">儲蓄</div><div class="chain-arrow">→</div>
+          <div class="chain-item">資產</div><div class="chain-arrow">→</div>
+          <div class="chain-item">現金流</div><div class="chain-arrow">→</div>
+          <div class="chain-item">自由</div>
+        </div>
+      </div>
+      <div class="result-box" style="border-left-color:var(--green)"><div class="result-label" style="color:var(--green)">⚡ 核心洞見</div><div class="result-zh">追錢的人永遠缺錢。追能力的人能持續賺錢。建系統的人即使睡覺也在創造價值。</div><div class="result-en">Those who chase money are always short. Those who build skills earn consistently. Those who build systems create value even while sleeping.</div></div>
+    </div>
+  </div>
+
+  <div class="expand-card" id="ew2">
+    <div class="expand-head" onclick="toggle('ew2')">
+      <div class="expand-num" style="background:var(--teal)">⏰</div>
+      <div class="expand-titles">
+        <div class="expand-zh">時間 · 空間管理 Time & Space Management</div>
+        <div class="expand-en">Time is fixed; attention is the real resource — space designs behavior</div>
+        <div class="expand-core">核心：時間固定24小時，但注意力品質決定一切 · Time is fixed; attention quality determines everything</div>
+      </div>
+      <div class="expand-arrow">▶</div>
+    </div>
+    <div class="expand-body">
+      <div class="compare-pair">
+        <div class="cp-bad"><div class="cp-label">❌ 普通人</div><div class="cp-text">時間不夠用<br>事情太多<br>空間=放東西<br>靠意志力改變</div><div class="cp-en">Not enough time · Too many things · Space = storage · Rely on willpower</div></div>
+        <div class="cp-good"><div class="cp-label">✅ 建模大師</div><div class="cp-text">系統設計不好<br>聚焦最高價值<br>空間=行為生成系統<br>靠環境設計改變</div><div class="cp-en">System design problem · Focus on highest value · Space = behavior generator · Environment design</div></div>
+      </div>
+      <div class="model-grid">
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">目標模型 Goal</div><div class="model-en">Purpose Model</div><div class="model-q">為何而做？</div><div class="model-lever">↗ 方向 Direction</div></div>
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">優先模型 Priority</div><div class="model-en">80/20 Model</div><div class="model-q">先做什麼？</div><div class="model-lever">↗ 選擇 Selection</div></div>
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">能量模型 Energy</div><div class="model-en">Biorhythm Model</div><div class="model-q">何時做最好？</div><div class="model-lever">↗ 精力 Vitality</div></div>
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">系統模型 System</div><div class="model-en">SOP Model</div><div class="model-q">如何持續做？</div><div class="model-lever">↗ 習慣 Habits</div></div>
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">複利模型 Compound</div><div class="model-en">Long-term Value</div><div class="model-q">什麼最值得做？</div><div class="model-lever">↗ 長期價值</div></div>
+        <div class="model-item" style="border-left-color:var(--teal)"><div class="model-zh">槓桿模型 Leverage</div><div class="model-en">High-Impact Actions</div><div class="model-q">哪件事影響最大？</div><div class="model-lever">↗ 高報酬行動</div></div>
+      </div>
+      <div class="chain-box">
+        <div class="chain-title">🏠 建模大師空間設計公式</div>
+        <div class="chain-flow">
+          <div class="chain-item">想做的事 → 放近</div><div class="chain-arrow">|</div>
+          <div class="chain-item">不想做的事 → 放遠</div><div class="chain-arrow">→</div>
+          <div class="chain-item">書本放桌上→多閱讀</div><div class="chain-arrow">|</div>
+          <div class="chain-item">手機放客廳→少滑</div><div class="chain-arrow">|</div>
+          <div class="chain-item">運動鞋放門口→多運動</div>
+        </div>
+      </div>
+      <div class="result-box" style="border-left-color:var(--teal)"><div class="result-label" style="color:var(--teal)">⚡ 終極公式</div><div class="result-zh">刪除低價值 + 聚焦高價值 + SOP + AI + 自治系統 + 持續優化 → 時間自由 → 人生自由</div><div class="result-en">Delete low value + Focus high value + SOP + AI + Self-governance + Optimize → Time freedom → Life freedom</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: AI PROMPTS ══════════ -->
+<div class="page" id="page-prompt">
+
+  <div class="sec-head">
+    <div class="sec-icon">🤖</div>
+    <div>
+      <div class="sec-title">建模大師AI提示詞全集</div>
+      <div class="sec-sub">Master AI Prompt Library · All Domains · Systems Thinking Prompts</div>
+    </div>
+  </div>
+
+  <!-- MEGA PROMPT -->
+  <div class="mega-prompt">
+    <div class="mega-title">🧠 建模大師終極萬能提示詞 · Master Universal Prompt</div>
+    <div class="mega-intro">請不要只回答問題。請用系統論、控制論、預測編碼、複利模型分析這個主題。<br><small>Don't just answer — use Systems Theory, Control Theory, Predictive Coding, and Compound Model to analyze.</small></div>
+    <div class="mega-list">
+      <div class="mega-item"><div class="mega-no">①</div><div><div class="mega-text">本質層 Core Nature</div><div class="mega-en">What is the fundamental nature of this issue?</div></div></div>
+      <div class="mega-item"><div class="mega-no">②</div><div><div class="mega-text">結構層 Structure</div><div class="mega-en">What is the system structure and key components?</div></div></div>
+      <div class="mega-item"><div class="mega-no">③</div><div><div class="mega-text">機制層 Mechanism</div><div class="mega-en">How does the mechanism work at a deep level?</div></div></div>
+      <div class="mega-item"><div class="mega-no">④</div><div><div class="mega-text">行動層 Action</div><div class="mega-en">What specific actions can be taken?</div></div></div>
+      <div class="mega-item"><div class="mega-no">⑤</div><div><div class="mega-text">關鍵節點 Key Nodes</div><div class="mega-en">What are the critical nodes in the system?</div></div></div>
+      <div class="mega-item"><div class="mega-no">⑥</div><div><div class="mega-text">核心槓桿 Core Leverage</div><div class="mega-en">Where is the highest-leverage point?</div></div></div>
+      <div class="mega-item"><div class="mega-no">⑦</div><div><div class="mega-text">控制迴路 Control Loops</div><div class="mega-en">What are the feedback and control loops?</div></div></div>
+      <div class="mega-item"><div class="mega-no">⑧</div><div><div class="mega-text">常見誤差 Common Errors</div><div class="mega-en">What are the most common modeling mistakes?</div></div></div>
+      <div class="mega-item"><div class="mega-no">⑨</div><div><div class="mega-text">更新路徑 Update Path</div><div class="mega-en">How to continuously upgrade this model?</div></div></div>
+      <div class="mega-item"><div class="mega-no">⑩</div><div><div class="mega-text">最低成本最高效益方案 Min-Cost Max-Impact</div><div class="mega-en">What is the lowest-cost, highest-impact solution?</div></div></div>
+    </div>
+  </div>
+
+  <!-- PROMPT LIBRARY BY DOMAIN -->
+  <div class="sec-head">
+    <div class="sec-icon">📋</div>
+    <div>
+      <div class="sec-title">各領域AI提示詞庫</div>
+      <div class="sec-sub">Domain-Specific AI Prompt Templates</div>
+    </div>
+  </div>
+
+  <div class="ai-box">
+    <div class="ai-box-title">🧠 認知建模 Cognitive Modeling</div>
+    <div class="ai-prompts">
+      <div class="ai-prompt"><div class="ai-prompt-zh">認知診斷</div><div class="ai-prompt-text">請分析我目前對這件事的認知模型，找出可能的盲點與偏誤。<br><span class="ai-prompt-en">Analyze my current cognitive model of this issue — find blindspots and biases.</span></div></div>
+      <div class="ai-prompt"><div class="ai-prompt-zh">建模分析</div><div class="ai-prompt-text">請把這個主題拆解成核心節點、因果鏈、控制迴路與關鍵槓桿。<br><span class="ai-prompt-en">Break this topic into: core nodes, causal chains, control loops, and key levers.</span></div></div>
+      <div class="ai-prompt"><div class="ai-prompt-zh">更新分析</div><div class="ai-prompt-text">請把舊模型升級成更高維、更準確、更有效的模型。<br><span class="ai-prompt-en">Upgrade this old model to a higher-dimensional, more accurate, more effective version.</span></div></div>
+    </div>
+  </div>
+
+  <div class="ai-box">
+    <div class="ai-box-title">🌱 人生系統 Life System</div>
+    <div class="ai-prompts">
+      <div class="ai-prompt"><div class="ai-prompt-zh">人生診斷</div><div class="ai-prompt-text">請分析我目前的人生系統，列出優勢、瓶頸、風險與成長槓桿。<br><span class="ai-prompt-en">Analyze my current life system: strengths, bottlenecks, risks, growth levers.</span></div></div>
+      <div class="ai-prompt"><div class="ai-prompt-zh">命運分析</div><div class="ai-prompt-text">請分析我目前習慣、決策與環境，推演五年後的人生軌跡。<br><span class="ai-prompt-en">Analyze my current habits, decisions, and environment to project my life trajectory in 5 years.</span></div></div>
+      <div class="ai-prompt"><div class="ai-prompt-zh">人生更新</div><div class="ai-prompt-text">請建立我的年度更新系統，包含反思、修正與升級。<br><span class="ai-prompt-en">Build my annual update system: reflection, correction, and upgrade.</span></div></div>
+    </div>
+  </div>
+
+  <div class="ai-box">
+    <div class="ai-box-title">⚡ 習慣與注意力 Habits & Attention</div>
+    <div class="ai-prompts">
+      <div class="ai-prompt"><div class="ai-prompt-zh">習慣診斷</div><div class="ai-prompt-text">請分析我目前最影響人生的習慣，列出正向與負向習慣，找出最高槓桿習慣。<br><span class="ai-prompt-en">Analyze my most life-impacting habits. List positive and negative. Find highest-leverage habit.</span></div></div>
+      <div class="ai-prompt"><div class="ai-prompt-zh">拖延分析</div><div class="ai-prompt-text">請把需要意志力的事情改造成自動化系統，分析拖延根本原因。<br><span class="ai-prompt-en">Transform willpower-dependent tasks into automated systems. Analyze root cause of procrastination.</span></div></div>
+      <div class="ai-prompt"><div class="ai-prompt-zh">注意力診斷</div><div class="ai-prompt-text">請分析我一天的注意力流向，找出最大注意力黑洞，建立注意力儀表板。<br><span class="ai-prompt-en">Map my attention flow for a full day. Find the biggest attention black holes. Build an attention dashboard.</span></div></div>
+    </div>
+  </div>
+
+  <div class="ai-box">
+    <div class="ai-box-title">🤝 關係與溝通 Relations & Communication</div>
+    <div class="ai-prompts">
+      <div class="ai-prompt"><div class="ai-prompt-zh">關係診斷</div><div class="ai-prompt-text">請分析這段關係的系統結構、關鍵節點、衝突背後的需求與改善策略。<br><span class="ai-prompt-en">Analyze this relationship's system structure, key nodes, needs behind conflict, improvement strategies.</span></div></div>
+      <div class="ai-prompt"><div class="ai-prompt-zh">高共鳴表達</div><div class="ai-prompt-text">請把這段話改寫成高共鳴、高理解、低防衛的版本，先理解對方，再設計訊息。<br><span class="ai-prompt-en">Rewrite this for high resonance, easy understanding, and low defensiveness. Understand first, then design message.</span></div></div>
+    </div>
+  </div>
+
+  <div class="ai-box">
+    <div class="ai-box-title">💊 健康系統 Health System</div>
+    <div class="ai-prompts">
+      <div class="ai-prompt"><div class="ai-prompt-zh">健康診斷</div><div class="ai-prompt-text">請用穩態/能量/訊號/免疫/修復/預測模型分析此健康問題，找出核心槓桿。<br><span class="ai-prompt-en">Use Homeostasis/Energy/Signal/Immunity/Repair/Prediction models to analyze this health issue.</span></div></div>
+      <div class="ai-prompt"><div class="ai-prompt-zh">睡眠分析</div><div class="ai-prompt-text">請分析睡眠系統失衡節點，包含HPA軸、皮質醇、血糖、生理時鐘的關係。<br><span class="ai-prompt-en">Analyze sleep system imbalance: HPA axis, cortisol, blood sugar, circadian rhythm relationships.</span></div></div>
+      <div class="ai-prompt"><div class="ai-prompt-zh">壓力地圖</div><div class="ai-prompt-text">請建立我的壓力系統地圖，分析如何把壓力轉化成成長動能。<br><span class="ai-prompt-en">Build my stress system map. Analyze how to convert stress into growth momentum.</span></div></div>
+    </div>
+  </div>
+
+  <div class="ai-box">
+    <div class="ai-box-title">👑 領導與決策 Leadership & Decision</div>
+    <div class="ai-prompts">
+      <div class="ai-prompt"><div class="ai-prompt-zh">領導診斷</div><div class="ai-prompt-text">請分析目前團隊最大的瓶頸、核心問題與改善槓桿，建立自治系統設計。<br><span class="ai-prompt-en">Analyze team's biggest bottleneck, core issues, improvement levers, and design autonomous system.</span></div></div>
+      <div class="ai-prompt"><div class="ai-prompt-zh">決策框架</div><div class="ai-prompt-text">請分析這個決策的核心目標、關鍵變數、風險地圖，建立最佳/中性/最壞三種情境模型。<br><span class="ai-prompt-en">Analyze this decision: core goal, key variables, risk map. Build best/neutral/worst case models.</span></div></div>
+    </div>
+  </div>
+
+  <div class="ai-box">
+    <div class="ai-box-title">💰 財富與時間 Wealth & Time</div>
+    <div class="ai-prompts">
+      <div class="ai-prompt"><div class="ai-prompt-zh">財富系統分析</div><div class="ai-prompt-text">請分析我目前所有能力，建立5種以上收入來源，設計可複製的商業系統。<br><span class="ai-prompt-en">Analyze all my skills. Design 5+ income sources. Build a replicable business system.</span></div></div>
+      <div class="ai-prompt"><div class="ai-prompt-zh">時間黑洞診斷</div><div class="ai-prompt-text">請用80/20法則分析我的工作與生活，找出最重要20%的事情，刪除時間黑洞。<br><span class="ai-prompt-en">Apply 80/20 to my work and life. Find the vital 20%. Identify and eliminate time black holes.</span></div></div>
+    </div>
+  </div>
+
+  <!-- Final formula -->
+  <div class="formula-box" style="margin-top:8px">
+    <div class="formula-title">🧠 建模大師最高10問 · Master's 10 Essential Questions</div>
+    <div class="mega-list">
+      <div class="mega-item"><div class="mega-no">1</div><div class="mega-text">健康出了問題嗎？ · Is my health system working?</div></div>
+      <div class="mega-item"><div class="mega-no">2</div><div class="mega-text">我的預測準嗎？ · Are my predictions accurate?</div></div>
+      <div class="mega-item"><div class="mega-no">3</div><div class="mega-text">我把時間花在哪裡？ · Where is my time going?</div></div>
+      <div class="mega-item"><div class="mega-no">4</div><div class="mega-text">我每天重複什麼習慣？ · What habits am I repeating daily?</div></div>
+      <div class="mega-item"><div class="mega-no">5</div><div class="mega-text">我的注意力流向哪裡？ · Where is my attention flowing?</div></div>
+      <div class="mega-item"><div class="mega-no">6</div><div class="mega-text">我的收入系統是什麼？ · What is my income system?</div></div>
+      <div class="mega-item"><div class="mega-no">7</div><div class="mega-text">我的關係品質如何？ · What is the quality of my relationships?</div></div>
+      <div class="mega-item"><div class="mega-no">8</div><div class="mega-text">我的情緒在告訴我什麼？ · What are my emotions signaling?</div></div>
+      <div class="mega-item"><div class="mega-no">9</div><div class="mega-text">我的模型過時了嗎？ · Are my models outdated?</div></div>
+      <div class="mega-item"><div class="mega-no">10</div><div class="mega-text">我是否持續更新？ · Am I continuously updating?</div></div>
+    </div>
+  </div>
+
+  <div class="page-footer">建模大師 OS · Modeling Master System · 建模力 · 預測力 · 修正力 · 更新力 · 人生作業系統</div>
+</div>
+
+</div><!-- end main -->
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === id));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function toggle(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+// Auto-open first card on each page when it activates
+document.addEventListener('DOMContentLoaded', () => {
+  toggle('ec1');
+});
+</script>
+</body>
+</html>
